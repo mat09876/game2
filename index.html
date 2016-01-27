@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>we are gamers not players ;)</title>
+    <style>
+    	* { padding: 0; margin: 0; }
+    canvas { 
+			background: #eee;
+			display: block;
+			margin: 0 auto;
+			height: 90vh; /* this make the canvas 90% width and height */
+			width: 90vw;
+}
+    </style>
+</head>
+<body>
+
+<canvas id="myCanvas"></canvas>
+
+<script>
+
+	var canvas = document.getElementById("myCanvas"); // this is just talking to the canvas 
+	var ctx = canvas.getContext("2d"); // this is just talking to the canvas 
+	var ballRadius = 10; // radious of the ball kinda explainitory but hey gotta love abit of commenting
+	var x = canvas.width/2; 
+	var y = canvas.height-30;
+	var dx = 2; // this will make the impression that we are drawing something 
+	var dy = -2;// this will make the impression that we are drawing something 
+	var paddleHeight = 7; // this is all paddle dimensions
+	var paddleWidth = 50; // this is all paddle dimensions
+	var paddleX = (canvas.width-paddleWidth)/2; // this is all paddle dimensions
+	var rightPressed = false; //checking if right key is pressed variable 
+	var leftPressed = false; //checking if left key is pressed variable
+	var brickRowCount = 4; // these variables are building the bricks using sizes i have defined
+	var brickColumnCount = 10;
+	var brickWidth = 25;
+	var brickHeight = 7;
+	var brickPadding = 8;
+	var brickOffsetTop = 5;
+	var brickOffsetLeft = 5;
+	var score = 0; // setting the score to 0 and below it adds for every brick built
+	var lives = 5; // sets the lives so whatever you feel like 
+	var color = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+	var color1 = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+	var color2 = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+	var color3 = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')';
+	var color4 = 'rgb(' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ',' + (Math.floor(Math.random() * 256)) + ')'; // this is the color randomer above ( its kinda a hack as i know i could be able to make it randomer but hey close)
+
+document.addEventListener("keydown", keyDownHandler, false); // listening to the keyboard to see if there pressed 
+document.addEventListener("keyup", keyUpHandler, false); // listening to the keyboard to see if there pressed
+// mouse movement document.addEventListener("mousemove", mouseMoveHandler, false);
+
+
+// all the bricks are in a two dimesional array, it contains c and r as colums and rows, a and y are positions 
+// here we are looping through them so by changing the sizes in the variablesd above we will get more of less depending on the size 
+
+var bricks = [];
+for(c=0; c<brickColumnCount; c++) {
+    bricks[c] = [];
+    for(r=0; r<brickRowCount; r++) {
+         bricks[c][r] = { x: 0, y: 0, status: 1 };
+    }
+}
+
+
+/* doesnt seem to be working 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 10; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}	
+
+*/
+// this is listening out above and when the keys are clicked do accordingly below two fcuntions 
+function keyDownHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = true;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if(e.keyCode == 39) {
+        rightPressed = false;
+    }
+    else if(e.keyCode == 37) {
+        leftPressed = false;
+    }
+}	
+
+
+
+/* this is the mouse moving but isnt exactly pretty haha
+
+function mouseMoveHandler(e) {
+    var relativeX = e.clientX - canvas.offsetLeft;
+    if(relativeX > 0 && relativeX < canvas.width) {
+        paddleX = relativeX - paddleWidth/2;
+    }
+}
+
+*/
+
+// beginPath and closePath these contain all the instructions
+// the fillStyle stores the colo and the fill method paints
+// arc takes 6 paramaters which are x and y cordinades of the cars centre, arc radius, start angle and end angle, direction of drawing
+
+
+
+
+function drawBall() {
+    ctx.beginPath(); 
+    ctx.arc(x, y, 2, ballRadius, 9.9); // this actually draws the balls size 
+    ctx.fillStyle = color;//"green"; //
+    ctx.fill();
+    ctx.closePath();
+}
+
+function drawPaddle() {
+    ctx.beginPath();
+    ctx.rect(paddleX, canvas.height-paddleHeight, paddleWidth, paddleHeight);
+    ctx.fillStyle = color1;//"purple"; // getRandomColor()
+    ctx.fill();
+    ctx.closePath();
+}
+
+// here we are drawing the bricks  but we are looping through them so buy changing the sizes in the variablesd above we will get more of less depending on the size 
+function drawBricks() {
+    for(c=0; c<brickColumnCount; c++) {
+        for(r=0; r<brickRowCount; r++) {
+            if(bricks[c][r].status == 1) { // this makes the brick disapeear ater being hit and tracking and updating status of colliosn status
+                var brickX = (c*(brickWidth+brickPadding))+brickOffsetLeft; // the bricks are using the instrucstions above to move apart or they would all be in one place
+                var brickY = (r*(brickHeight+brickPadding))+brickOffsetTop;
+                bricks[c][r].x = brickX;
+                bricks[c][r].y = brickY;
+                ctx.beginPath();
+                ctx.rect(brickX, brickY, brickWidth, brickHeight);
+                ctx.fillStyle = color2;//"#0095DD";
+                ctx.fill();
+                ctx.closePath();
+            }
+        }
+    }
+}
+
+
+// this is looping through all the bricks position and checking where it is vs the balls position each frame. b variable is for storing the bricks object in every loop collisionDetection
+
+// okay the logic the to move the ball when the ball hits the brick, x position of ball is greater tha x positions of brick, x positions of ball is less than x positions of brick plus its defined width, y positions of ball greater tha y positions brick, y positions ball less y positions of brick plus height
+
+function collisionDetection() {
+    for(c=0; c<brickColumnCount; c++) {
+        for(r=0; r<brickRowCount; r++) {
+            var b = bricks[c][r];  
+            if(b.status == 1) {
+                if(x > b.x && x < b.x+brickWidth && y > b.y && y < b.y+brickHeight) {
+                    dy = -dy;
+                    b.status = 0;
+                    score++; // this is adding the score woot woot progress
+                    if(score == 36/*brickRowCount*brickColumnCount*/) {
+                    	alert("WINNER WINNER CHICKEN DINNER");
+                    	document.location.reload();
+                    }
+                }
+            }
+        }
+    }
+}
+
+function drawScore() {
+    ctx.font = "5px Arial";
+    ctx.fillStyle = color3;//"black";
+    ctx.fillText("Score: "+score, 8, 20);
+}
+
+function drawLives() {
+    ctx.font = "5px Arial";
+    ctx.fillStyle = color4;//"black";
+    ctx.fillText("Lives: "+lives, canvas.width-65, 20);
+}
+
+
+// this lets me beging the drawing of the game
+function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height); // this removes the drawing of the previous ball 
+// all the actually calling of the fucntions are below ( drawing of items)
+    drawBricks();
+    drawBall();
+    drawPaddle();
+    collisionDetection();
+    drawScore();
+    drawLives();
+
+
+// this is just checking where the ball is and to move accordingly when it hits the wall ( its usuing variables defined at the top of the page)
+ if(x + dx > canvas.width-ballRadius || x + dx < ballRadius) {
+        dx = -dx;
+    }
+    if(y + dy < ballRadius) {
+        dy = -dy;
+    }
+    else if(y + dy > canvas.height-ballRadius) { 
+        if(x > paddleX && x < paddleX + paddleWidth) { // talking to the paddle and ball to allow the bounce off the paddle happen 
+            dy = -dy;
+        }
+        else {
+ 			lives--;
+            if(!lives) { // this saying after the lives hit 0 impliment this bit of code which reloads the game and starts again and ofcourse pop up you win ot lose depding on the autcome 
+                //alert("GAME OVER");
+                document.location.reload();
+            }
+            else {
+                x = canvas.width/2;
+                y = canvas.height-30;
+                dx = 3;
+                dy = -3;
+                paddleX = (canvas.width-paddleWidth)/2;
+            }
+        }
+    }
+    
+//below will move the paddle accordingly put its checking to see where it is so if its near the wall it wont move, the number is just pixels
+
+    if(rightPressed && paddleX < canvas.width-paddleWidth) {
+        paddleX += 7;
+    }
+    else if(leftPressed && paddleX > 0) {
+        paddleX -= 7;
+    }
+    
+    x += dx; // this is the new position of the ball
+    y += dy; // this is the new position of the ball
+}
+
+
+	setInterval(draw, 30); // this is the speeeeeeeeeeeeeeeeeeed set it at 1 for a laugh, this is called again and again to create a drawing impression
+
+
+
+
+</script>
+
+</body>
+</html>
+
+
